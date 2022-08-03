@@ -79,7 +79,7 @@ class HuffmanCoding:
 		for i in range(extra_padding):
 			encoded_text += "0"
 
-		padded_info = "{0:08b}".format(extra_padding)
+		padded_info = "{0:08b}".format(extra_padding)	#extra_padding will lie in [0-7] range, only need 3 bits to cover the range but need 8 multiple to be greedy 8 only, machine will take 64 better format explicitely for 8 lenght.
 		encoded_text = padded_info + encoded_text
 		return encoded_text
 
@@ -154,8 +154,8 @@ class HuffmanCoding:
 
 			byte = file.read(1)
 			while(len(byte) > 0):
-				byte = ord(byte)
-				bits = bin(byte)[2:].rjust(8, '0')
+				byte = ord(byte)	##'bytes' object cannot be interpreted as an integer, bin() takes int not bytes hence converting byte to int with ord->int:unicode
+				bits = bin(byte)[2:].rjust(8, '0')	#bin() will drop of leading zero if any example for 8 return 1000 dropping 0000 now this is our responsibilty to make the 8 len chunk as it was sent durning compression
 				bit_string += bits
 				byte = file.read(1)
 
