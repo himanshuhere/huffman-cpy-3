@@ -1,19 +1,7 @@
-import heapq
+import heapq, collections
 import os
 
-"""
-author: Bhrigu Srivastava
-website: https:bhrigu.me
-"""
-
-class HuffmanCoding:
-	def __init__(self, path):
-		self.path = path
-		self.heap = []
-		self.codes = {}
-		self.reverse_mapping = {}
-
-	class HeapNode:
+class HeapNode:
 		def __init__(self, char, freq):
 			self.char = char
 			self.freq = freq
@@ -31,19 +19,21 @@ class HuffmanCoding:
 				return False
 			return self.freq == other.freq
 
+class HuffmanCoding:
+	def __init__(self, path):
+		self.path = path
+		self.heap = []
+		self.compression_codes = {}
+		self.decompression_codes = {}
+
 	# functions for compression:
 
 	def make_frequency_dict(self, text):
-		frequency = {}
-		for character in text:
-			if not character in frequency:
-				frequency[character] = 0
-			frequency[character] += 1
-		return frequency
+		return collections.Counter(text)
 
 	def make_heap(self, frequency):
 		for key in frequency:
-			node = self.HeapNode(key, frequency[key])
+			node = HeapNode(key, frequency[key])
 			heapq.heappush(self.heap, node)
 
 	def merge_nodes(self):
@@ -51,7 +41,7 @@ class HuffmanCoding:
 			node1 = heapq.heappop(self.heap)
 			node2 = heapq.heappop(self.heap)
 
-			merged = self.HeapNode(None, node1.freq + node2.freq)
+			merged = HeapNode(None, node1.freq + node2.freq)
 			merged.left = node1
 			merged.right = node2
 
@@ -63,8 +53,8 @@ class HuffmanCoding:
 			return
 
 		if(root.char != None):
-			self.codes[root.char] = current_code
-			self.reverse_mapping[current_code] = root.char
+			self.compression_codes[root.char] = current_code
+			self.decompression_codes[current_code] = root.char
 			return
 
 		self.make_codes_helper(root.left, current_code + "0")
@@ -80,7 +70,7 @@ class HuffmanCoding:
 	def get_encoded_text(self, text):
 		encoded_text = ""
 		for character in text:
-			encoded_text += self.codes[character]
+			encoded_text += self.compression_codes[character]
 		return encoded_text
 
 
@@ -114,7 +104,7 @@ class HuffmanCoding:
 			text = file.read()
 			text = text.rstrip()
 
-			frequency = self.make_frequency_dict(text)
+			frequency = self.create_freq_dict(text)
 			self.make_heap(frequency)
 			self.merge_nodes()
 			self.make_codes()
@@ -147,8 +137,8 @@ class HuffmanCoding:
 
 		for bit in encoded_text:
 			current_code += bit
-			if(current_code in self.reverse_mapping):
-				character = self.reverse_mapping[current_code]
+			if(current_code in self.decompression_codes):
+				character = self.decompression_codes[current_code]
 				decoded_text += character
 				current_code = ""
 
